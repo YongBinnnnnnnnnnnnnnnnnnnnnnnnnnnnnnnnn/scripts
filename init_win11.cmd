@@ -44,16 +44,27 @@ sc config WMIRegistrationService start=disabled
 sc config WpcMonSvc start=disabled
 sc config FontCache start=disabled
 sc config SSDPSRV start=disabled
+sc config CmService start=disabled
 sc config "Bonjour Service" start=disabled
 echo sc config DoSvc start=disabled
 sc config DSMSvc start=disabled
 
+sc config wlidsvc start=disabled
+sc config TokenBroker start=disabled
+sc config CryptSvc start=disabled
+sc config DeviceAssociationService start=disabled
+sc config DispBrokerDesktopSvc start=disabled
+sc config WFDSConMgrSvc start=disabled
 
 sc delete wlms
 
 sc config Audiosrv start=auto
 
 powercfg -h off
+
+echo pnputil /enum-drivers
+echo pnputil /delete-driver oem9.inf /force /uninstall
+echo dism /online /get-drivers /format:table
 
 ren C:\Windows\System32\btwdi.dll btwdi.dll.bkup
 ren C:\Windows\System32\BtwRSupportService.exe BtwRSupportService.exe.bkup
@@ -71,16 +82,20 @@ ren C:\Windows\System32\drivers\bthpan.sys bthpan.sys.bkup
 ren C:\Windows\System32\drivers\igdkmd64.sys igdkmd64.sys.bkup
 ren C:\Windows\System32\drivers\E1G6032E.sys E1G6032E.sys.bkup
 
-
-reg delete HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\e1dexpress /f
-reg delete HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\igfx /f
-
 sc stop dosvc
+
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /f /t REG_DWORD /d 1
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableRoutinelyTakingAction /f /t REG_DWORD /d 1
+
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\DoSvc /v Start /f /t REG_DWORD /d 4
+reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Schedule /v Start /f /t REG_DWORD /d 4
+echo reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Dnscache /v Start /f /t REG_DWORD /d 4
+echo reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SecurityHealthService /v Start /f /t REG_DWORD /d 4
 
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CaptureService /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\cbdhsvc /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CDPUserSvc /v ImagePath /f /t REG_EXPAND_SZ /d /
+reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\DeviceFlowUserSvc /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\UdkUserSvc /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WpcMonSvc /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\cloudidsvc /v ImagePath /f /t REG_EXPAND_SZ /d /
@@ -90,6 +105,8 @@ reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NPSMSvc /v ImagePat
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\PenService /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WpnService /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SecurityHealthService /v ImagePath /f /t REG_EXPAND_SZ /d /
+echo %SystemRoot%\system32\svchost.exe -k NetworkService -p
+reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CryptSvc /v ImagePath /f /t REG_EXPAND_SZ /d /
 
 
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\bcbtums /v ImagePath /f /t REG_EXPAND_SZ /d /
@@ -123,6 +140,11 @@ reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\XTUComponent /v Ima
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\bcbtums /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\IntelPMT /v ImagePath /f /t REG_EXPAND_SZ /d /
 
+reg delete HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\cloudidsvc /f
+reg delete HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\e1dexpress /f
+reg delete HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\igfx /f
+reg delete HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\igfxn /f
+reg delete "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\Wds\rdpwd" /f
 
 echo powershell -Command "Get-AppxPackage -AllUsers -Name *Bing*| Remove-AppxPackage"
 echo powershell -Command "Get-AppxPackage -AllUsers -Name *Parental*| Remove-AppxPackage"
@@ -140,8 +162,14 @@ netsh advfirewall firewall delete rule name="Widgets in"
 for /F "usebackq delims=" %A in (`powershell -Command "Get-AppxPackage -AllUsers -Name MicrosoftWindows.Client.WebExperience |Select InstallLocation|findstr Windows"`) do netsh advfirewall firewall add rule name="Widgets in" dir=in program="%A\Dashboard\Widgets.exe" action=block
 netsh advfirewall firewall delete rule name="Widgets out"
 for /F "usebackq delims=" %A in (`powershell -Command "Get-AppxPackage -AllUsers -Name MicrosoftWindows.Client.WebExperience |Select InstallLocation|findstr Windows"`) do netsh advfirewall firewall add rule name="Widgets out" dir=out program="%A\Dashboard\Widgets.exe" action=block
-
-
+netsh advfirewall firewall delete rule name="common udp out"
+netsh advfirewall firewall add rule name="common udp out" protocol=UDP dir=out localport=135,137,138,139,500,3389,4500,5353,5355 action=block
+netsh advfirewall firewall delete rule name="common udp in"
+netsh advfirewall firewall add rule name="common udp in" protocol=UDP dir=in localport=135,137,138,139,500,3389,4500,5353,5355 action=block
+netsh advfirewall firewall delete rule name="common tcp out"
+netsh advfirewall firewall add rule name="common tcp out" protocol=TCP dir=out localport=135,137,138,139,500,3389,4500,5353,5355 action=block
+netsh advfirewall firewall delete rule name="common tcp in"
+netsh advfirewall firewall add rule name="common tcp in" protocol=TCP dir=in localport=135,137,138,139,500,3389,4500,5353,5355 action=block
 
 netsh advfirewall firewall show rule profile=any
 
