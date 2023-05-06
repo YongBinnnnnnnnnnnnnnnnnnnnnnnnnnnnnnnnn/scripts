@@ -2,6 +2,7 @@
 sc config Themes start=disabled
 sc config MSDTC start=disabled
 sc config WpnService start=disabled
+sc config WpnUserService start=disabled
 sc config ShellHWDetection start=disabled
 sc config RemoteRegistry start=disabled
 sc config Spooler start=disabled
@@ -44,10 +45,12 @@ sc config WMIRegistrationService start=disabled
 sc config WpcMonSvc start=disabled
 sc config FontCache start=disabled
 sc config SSDPSRV start=disabled
-sc config CmService start=disabled
+echo sc config CmService start=disabled
 sc config "Bonjour Service" start=disabled
 echo sc config DoSvc start=disabled
 sc config DSMSvc start=disabled
+sc config AarSvc start=disabled
+echo sc config netprofm start=disabled
 
 sc config wlidsvc start=disabled
 sc config TokenBroker start=disabled
@@ -104,9 +107,11 @@ reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\OneSyncSvc /v Image
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\NPSMSvc /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\PenService /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WpnService /v ImagePath /f /t REG_EXPAND_SZ /d /
+reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WpnUserService /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SecurityHealthService /v ImagePath /f /t REG_EXPAND_SZ /d /
 echo %SystemRoot%\system32\svchost.exe -k NetworkService -p
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CryptSvc /v ImagePath /f /t REG_EXPAND_SZ /d /
+reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\AarSvc /v ImagePath /f /t REG_EXPAND_SZ /d /
 
 
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\bcbtums /v ImagePath /f /t REG_EXPAND_SZ /d /
