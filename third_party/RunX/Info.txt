@@ -1,0 +1,39 @@
+-----------
+  General
+-----------
+* RunX and RunXcmd both work on all versions of Windows.
+* RunX and RunXcmd are both stand-alone portable applications, which 
+  can be run from anywhere, and without any external dependencies.
+
+
+------------
+  RunX.exe
+------------
+Use this program when you need a graphical user interface.  
+
+You can use command line arguments with RunX.exe the same as RunXcmd.exe,
+however there will be no console output, and the /wait argument will have 
+no effect in scripting.  RunX.exe /? will show the help screen.
+
+TIPS:  Drag and drop a file onto RunX.exe to automatically populate the 
+       run dialog with that file.
+
+
+---------------
+  RunXcmd.exe
+---------------
+Use this program in scripting, when you need console output, or you need 
+your script to wait on the file you are running.  
+
+Run RunXcmd.exe with no arguments to see current usage.  Run directly from
+Windows Explorer via double-click and it will pause so you can read all the 
+notes before disappearing.
+
+
+-----------
+  License
+-----------
+* RunX and RunXcmd are both FREE to use for personal and commercial purposes.
+* Developers are free to use and distribute RunX or RunXcmd with their 
+  applications, provided credit is given to d7xTech, Inc. within the 
+  application help/about documentation and on the application website.
