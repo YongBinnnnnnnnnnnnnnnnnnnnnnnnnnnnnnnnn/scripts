@@ -1,15 +1,21 @@
 @echo off
 setlocal enabledelayedexpansion
 
-for /f "delims\" %%i in ('whoami') do set currentUser=%%i
+for /f "tokens=2 delims=\" %%i in ('whoami') do set currentUser=%%i
+
 if "%currentUser%"=="defaultuser0" (
   net user defaultuser 123456 /add
   net localgroup Administrators defaultuser /add
   reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Setup\State" /v ImageState /t REG_SZ /d "ImageState" /f >nul
   reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Setup\State" /v SetupType /t REG_DWORD /d 0 /f >nul
+  reg add "HKEY_LOCAL_MACHINE\SYSTEM\Setup" /v OOBEInProgress /t REG_DWORD /d 0 /f >nul
+  reg add "HKEY_LOCAL_MACHINE\SYSTEM\Setup" /v SetupType /t REG_DWORD /d 0 /f >nul
+  reg add "HKEY_LOCAL_MACHINE\SYSTEM\Setup" /v CmdLine /t REG_SZ /d "" /f >nul
+  reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OOBE" /v DefaultAccountAction /t REG_DWORD /d 0 /f >nul
   net user defaultuser0 /delete
 )
 
+powershell -c "Set-ExecutionPolicy bypass"
 cd %~dp0%
 third_party\pssuspend64.exe wlms.exe
 wmic product where name="Bonjour" call uninstall
@@ -169,6 +175,7 @@ call :disable_service smphost
 call :disable_service Wecsvc
 call :disable_service WMPNetworkSvc
 call :disable_service WerSvc
+::call :disable_service RpcSs
 
 sc config wlidsvc start=disabled
 sc config TokenBroker start=disabled
@@ -469,6 +476,7 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogo
 reg copy "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers" "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers_ybkup" /s /f
 third_party\RunX\RunXcmd.exe /exec=c:\windows\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers" /f
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{60b78e88-ead8-445c-9cfd-0b87f74ea6cd}" /f /t REG_SZ /d "PasswordProvider"
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{F8A1793B-7873-4046-B2A7-1F318747F427}" /f /t REG_SZ /d "FIDO Credential Provider"
 
 ::OLE DocFile Property Page
 reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shellex\PropertySheetHandlers\{3EA48300-8CF6-101B-84FB-666CCB9BCD32}" /F
@@ -572,9 +580,9 @@ netsh advfirewall firewall add rule name="common udp out" protocol=UDP dir=out l
 netsh advfirewall firewall delete rule name="common udp in"
 netsh advfirewall firewall add rule name="common udp in" protocol=UDP dir=in localport=135,137,138,139,500,3389,4500,5353,5355 action=block
 netsh advfirewall firewall delete rule name="common tcp out"
-netsh advfirewall firewall add rule name="common tcp out" protocol=TCP dir=out localport=135,137,138,139,500,3389,4500,5353,5355 action=block
+netsh advfirewall firewall add rule name="common tcp out" protocol=TCP dir=out localport=135,137,138,139,500,3389,4500,5353,5354,5355,49664,49665,49666,49667,49668 action=block
 netsh advfirewall firewall delete rule name="common tcp in"
-netsh advfirewall firewall add rule name="common tcp in" protocol=TCP dir=in localport=135,137,138,139,500,3389,4500,5353,5355 action=block
+netsh advfirewall firewall add rule name="common tcp in" protocol=TCP dir=in localport=135,137,138,139,500,3389,4500,5353,5354,5355,49664,49665,49666,49667,49668 action=block
 
 netsh advfirewall firewall show rule profile=any
 
@@ -619,7 +627,7 @@ if not errorlevel 1 (
     sc config %~1 start=disabled || (
         reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%~1 /v Start /f /t REG_DWORD /d 4 
     ) || (
-        third_party\RunX\RunXcmd.exe /exec=c:\windows\System32\reg.exe /wait /account=ti /args=add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%~1_%SERVICE_LUID% /v Start /f /t REG_DWORD /d 4
+        third_party\RunX\RunXcmd.exe /exec=c:\windows\System32\reg.exe /wait /account=ti /args=add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%~1 /v Start /f /t REG_DWORD /d 4
     )
   )
 )
