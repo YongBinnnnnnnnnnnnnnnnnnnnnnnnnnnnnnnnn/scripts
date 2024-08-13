@@ -1,10 +1,21 @@
 @echo off
 setlocal enabledelayedexpansion
 
+for /f "delims\" %%i in ('whoami') do set currentUser=%%i
+if "%currentUser%"=="defaultuser0" (
+  net user defaultuser 123456 /add
+  net localgroup Administrators defaultuser /add
+  reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Setup\State" /v ImageState /t REG_SZ /d "ImageState" /f >nul
+  reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Setup\State" /v SetupType /t REG_DWORD /d 0 /f >nul
+  net user defaultuser0 /delete
+)
+
 cd %~dp0%
 third_party\pssuspend64.exe wlms.exe
 wmic product where name="Bonjour" call uninstall
 wmic product where name="Apple Software Update" call uninstall
+:: notworking
+wmic product where name=null call uninstall
 ren C:\Windows\System32\opencl.dll opencl.dll.ybkup
 ren C:\Windows\SysWOW64\opencl.dll opencl.dll.ybkup
 third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\System32\opencl.dll opencl.dll.ybkup||ren C:\Windows\System32\opencl.dll opencl.dll.ybkup2"
@@ -22,8 +33,13 @@ sc config TbtP2pShortcutService start=disabled
 
 pnputil /disable-device /deviceid "PCI\VEN_8086&DEV_9A1B"
 pnputil /disable-device /deviceid "PCI\VEN_8086&DEV_9A1D"
-pnputil /disable-device "ACPI\USBC000\0"
+::pnputil /disable-device "ACPI\USBC000\0"
 pause
+
+powershell -Command "Get-CimInstance Win32_SystemDriver|Where-Object \"DisplayName\" -match \"Nahimic\"|Invoke-CimMethod -MethodName Delete"
+sc config NahimicService start=disabled
+sc config GCUBridge start=disabled
+
 
 bcdedit /set {current} bootstatuspolicy displayallfailures
 bcdedit /set {current} quietboot no
@@ -156,7 +172,7 @@ call :disable_service WerSvc
 
 sc config wlidsvc start=disabled
 sc config TokenBroker start=disabled
-sc config CryptSvc start=disabled
+::sc config CryptSvc start=disabled
 sc config DeviceAssociationService start=disabled
 sc config DispBrokerDesktopSvc start=disabled
 sc config WFDSConMgrSvc start=disabled
@@ -294,8 +310,7 @@ ren C:\Windows\System32\diagtrack.dll diagtrack.dll.ybkup
 ::ren C:\Windows\System32\drivers\igdkmd64.sys igdkmd64.sys.ybkup
 ::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\uxtheme.dll uxtheme.dll.ybkup
 powershell -Command "Get-CimInstance Win32_SystemDriver -Filter \"name='E1G60'\"|Invoke-CimMethod -MethodName Delete"
-powershell -Command "Get-CimInstance Win32_SystemDriver|Where-Object \"DisplayName\" -match \"Bluetooth\"|Invoke-CimMethod -MethodName Delete"
-
+powershell -Command "Get-CimInstance Win32_SystemDriver|Where-Object \"DisplayName\" -match \"Bluetooth^|Nahimic\"|Invoke-CimMethod -MethodName Delete"
 
 sc stop dosvc
 
@@ -401,7 +416,7 @@ reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\PenService /v Image
 ::reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WpnUserService /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\SecurityHealthService /v ImagePath /f /t REG_EXPAND_SZ /d /
 ::%SystemRoot%\system32\svchost.exe -k NetworkService -p
-reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CryptSvc /v ImagePath /f /t REG_EXPAND_SZ /d /
+::reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\CryptSvc /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\AarSvc /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\webthreatdefusersvc /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\PimIndexMaintenanceSvc /v ImagePath /f /t REG_EXPAND_SZ /d /
