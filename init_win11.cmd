@@ -39,6 +39,7 @@ sc config TbtP2pShortcutService start=disabled
 
 pnputil /disable-device /deviceid "PCI\VEN_8086&DEV_9A1B"
 pnputil /disable-device /deviceid "PCI\VEN_8086&DEV_9A1D"
+pnputil /disable-device /deviceid "HID\VID_093A&UP:FF00_U:0001"
 ::pnputil /disable-device "ACPI\USBC000\0"
 pause
 
@@ -575,14 +576,25 @@ powershell -Command "Show-NetFirewallRule|Where-Object \"DisplayName\" -match \"
 ::for /F "usebackq delims=" %%A in (`powershell -Command "Get-AppxPackage -AllUsers -Name MicrosoftWindows.Client.WebExperience |Select InstallLocation|findstr Windows"`) do netsh advfirewall firewall add rule name="Widgets in" dir=in program="%%A\Dashboard\Widgets.exe" action=block
 ::netsh advfirewall firewall delete rule name="Widgets out"
 ::for /F "usebackq delims=" %%A in (`powershell -Command "Get-AppxPackage -AllUsers -Name MicrosoftWindows.Client.WebExperience |Select InstallLocation|findstr Windows"`) do netsh advfirewall firewall add rule name="Widgets out" dir=out program="%%A\Dashboard\Widgets.exe" action=block
-netsh advfirewall firewall delete rule name="common udp out"
-netsh advfirewall firewall add rule name="common udp out" protocol=UDP dir=out localport=135,137,138,139,500,3389,4500,5353,5355 action=block
-netsh advfirewall firewall delete rule name="common udp in"
-netsh advfirewall firewall add rule name="common udp in" protocol=UDP dir=in localport=135,137,138,139,500,3389,4500,5353,5355 action=block
-netsh advfirewall firewall delete rule name="common tcp out"
-netsh advfirewall firewall add rule name="common tcp out" protocol=TCP dir=out localport=135,137,138,139,500,3389,4500,5353,5354,5355,49664,49665,49666,49667,49668 action=block
-netsh advfirewall firewall delete rule name="common tcp in"
-netsh advfirewall firewall add rule name="common tcp in" protocol=TCP dir=in localport=135,137,138,139,500,3389,4500,5353,5354,5355,49664,49665,49666,49667,49668 action=block
+netsh advfirewall firewall delete rule name="yongbin udp out"
+netsh advfirewall firewall add rule name="yongbin udp out" protocol=UDP dir=out localport=135,137,138,139,500,3389,4500,5350-5360 action=block
+netsh advfirewall firewall delete rule name="yongbin udp in"
+netsh advfirewall firewall add rule name="yongbin udp in" protocol=UDP dir=in localport=135,137,138,139,500,3389,4500,5350-5360 action=block
+netsh advfirewall firewall delete rule name="yongbin tcp out"
+netsh advfirewall firewall add rule name="yongbin tcp out" protocol=TCP dir=out localport=135,137,138,139,500,3389,4500,5350-5360,49660-49670 action=block
+netsh advfirewall firewall delete rule name="yongbin tcp in"
+netsh advfirewall firewall add rule name="yongbin tcp in" protocol=TCP dir=in localport=135,137,138,139,500,3389,4500,5350-5360,49660-49670 action=block
+netsh advfirewall firewall delete rule name="yongbin ipv6 in"
+netsh advfirewall firewall add rule name="yongbin ipv6 in" protocol=41 dir=in action=block
+netsh advfirewall firewall delete rule name="yongbin ipv6 out"
+netsh advfirewall firewall add rule name="yongbin ipv6 out" protocol=41 dir=out action=block
+
+if "%yongbin%"=="wye" (
+  netsh advfirewall firewall delete rule name="yongbin dhcp out"
+  netsh advfirewall firewall add rule name="yongbin udp out" protocol=UDP dir=out localport=67,68 action=block
+  netsh advfirewall firewall delete rule name="yongbin dhcp in"
+  netsh advfirewall firewall add rule name="yongbin udp in" protocol=UDP dir=in localport=67,68 action=block
+)
 
 netsh advfirewall firewall show rule profile=any
 
