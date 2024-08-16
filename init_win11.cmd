@@ -36,10 +36,14 @@ sc config igfxCUIService2.0.0.0 start=disabled
 sc config jhi_service start=disabled
 sc config TbtP2pShortcutService start=disabled
 
+sc config amdppm start=disabled
+sc config amdpsp start=disabled
+#sc config amdgpio2 start=disabled
 
 pnputil /disable-device /deviceid "PCI\VEN_8086&DEV_9A1B"
 pnputil /disable-device /deviceid "PCI\VEN_8086&DEV_9A1D"
-pnputil /disable-device /deviceid "HID\VID_093A&UP:FF00_U:0001"
+pnputil /disable-device /deviceid "PCI\VEN_1022&DEV_790B"
+
 ::pnputil /disable-device "ACPI\USBC000\0"
 pause
 
