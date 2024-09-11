@@ -15,6 +15,7 @@ if "%currentUser%"=="defaultuser0" (
   net user defaultuser0 /delete
 )
 
+copy ..\hood\scripts\hosts %windir%\System32\drivers\etc\hosts /y
 powershell -c "Set-ExecutionPolicy bypass"
 cd %~dp0%
 third_party\pssuspend64.exe wlms.exe
@@ -22,12 +23,12 @@ wmic product where name="Bonjour" call uninstall
 wmic product where name="Apple Software Update" call uninstall
 :: notworking
 wmic product where name=null call uninstall
-ren C:\Windows\System32\opencl.dll opencl.dll.ybkup
-ren C:\Windows\SysWOW64\opencl.dll opencl.dll.ybkup
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\System32\opencl.dll opencl.dll.ybkup||ren C:\Windows\System32\opencl.dll opencl.dll.ybkup2"
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\SysWOW64\opencl.dll opencl.dll.ybkup||ren C:\Windows\SysWOW64\opencl.dll opencl.dll.ybkup2"
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\System32\opengl32.dll opengl32.dll.ybkup||ren C:\Windows\System32\opengl32.dll opengl32.dll.ybkup2"
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\SysWOW64\opengl32.dll opengl32.dll.ybkup||ren C:\Windows\SysWOW64\opengl32.dll opengl32.dll.ybkup2"
+::ren C:\Windows\System32\opencl.dll opencl.dll.ybkup
+::ren C:\Windows\SysWOW64\opencl.dll opencl.dll.ybkup
+::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\System32\opencl.dll opencl.dll.ybkup||ren C:\Windows\System32\opencl.dll opencl.dll.ybkup2"
+::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\SysWOW64\opencl.dll opencl.dll.ybkup||ren C:\Windows\SysWOW64\opencl.dll opencl.dll.ybkup2"
+::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\System32\opengl32.dll opengl32.dll.ybkup||ren C:\Windows\System32\opengl32.dll opengl32.dll.ybkup2"
+::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\SysWOW64\opengl32.dll opengl32.dll.ybkup||ren C:\Windows\SysWOW64\opengl32.dll opengl32.dll.ybkup2"
 
 sc config IntelAudioService start=disabled
 sc config cplspcon start=disabled
@@ -38,7 +39,13 @@ sc config TbtP2pShortcutService start=disabled
 
 sc config amdppm start=disabled
 sc config amdpsp start=disabled
-#sc config amdgpio2 start=disabled
+::sc config amdgpio2 start=disabled
+sc config amduw23g start=disabled
+
+sc config UWACPIDriver start=disabled
+sc config YTETH start=disabled
+sc config Nahimic_Mirroring start=disabled
+
 
 pnputil /disable-device /deviceid "PCI\VEN_8086&DEV_9A1B"
 pnputil /disable-device /deviceid "PCI\VEN_8086&DEV_9A1D"
@@ -78,11 +85,13 @@ netsh int teredo set state disabled
 
 pnputil -i -a third_party\Drivers\Apple\netaapl64.inf
 pnputil -i -a third_party\Drivers\Apple\usbaapl64.inf
-pnputil -i -a third_party\Drivers\Intel\Thunderbolt\TbtHostController.inf
+::pnputil -i -a third_party\Drivers\Intel\Thunderbolt\TbtHostController.inf
 
 ::dtsapo4acerextensionpkg.inf
 
 ::dism /online /get-features /format:table|findstr Enabled
+
+for /f "" %%i in ('dir /b  %windir%\servicing\Packages\*Containers*.mum') do dism /online /norestart /add-package:%windir%\servicing\Packages\%%i
 start dism /online /enable-feature /featurename:"Containers-DisposableClientVM" -All -NoRestart
 start powershell -noprofile -Command "Get-WindowsCapability -Online -Name *Wallpaper*|Remove-WindowsCapability -Online"
 powershell -noprofile -Command "Get-WindowsCapability -Online -Name OneCore*|Remove-WindowsCapability -Online"
@@ -202,7 +211,7 @@ sc config uhssvc start=disabled
 
 sc config iphlpsvc start=demand
 
-sc config Tcpip6 start=disabled
+::sc config Tcpip6 start=disabled
 sc config tcpipreg start=disabled
 sc config wanarp start=disabled
 sc config wanarpv6 start=disabled
@@ -257,7 +266,6 @@ sc config intelpep start=disabled
 
 sc config cdrom start=demand
 sc config usbser start=demand
-sc config cdrom start=demand
 
 third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\sc.exe /wait /account=ti /args=config wlms start=disabled
 n third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\taskkill.exe /wait /account=ti /args=/f /im msmpeng.exe
@@ -321,6 +329,11 @@ ren C:\Windows\System32\diagtrack.dll diagtrack.dll.ybkup
 ::ren C:\Windows\System32\drivers\bthpan.sys bthpan.sys.ybkup
 ::ren C:\Windows\System32\drivers\igdkmd64.sys igdkmd64.sys.ybkup
 ::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\uxtheme.dll uxtheme.dll.ybkup
+
+ren %windir%\InputMethod InputMethod.ybkup
+third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\smartscreen.dll smartscreen.dll.ybkup
+third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\smartscreen.exe smartscreen.exe.ybkup
+
 powershell -Command "Get-CimInstance Win32_SystemDriver -Filter \"name='E1G60'\"|Invoke-CimMethod -MethodName Delete"
 powershell -Command "Get-CimInstance Win32_SystemDriver|Where-Object \"DisplayName\" -match \"Bluetooth^|Nahimic\"|Invoke-CimMethod -MethodName Delete"
 
@@ -451,15 +464,15 @@ reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\PimIndexMaintenance
 ::reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\RFCOMM /v ImagePath /f /t REG_EXPAND_SZ /d /
 ::reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Microsoft_Bluetooth_AvrcpTransport /v ImagePath /f /t REG_EXPAND_SZ /d /
 
-reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\iaLPSSi_GPIO /v ImagePath /f /t REG_EXPAND_SZ /d \SystemRoot\System32\drivers\iaLPSSi_GPIO.sys
+::reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\iaLPSSi_GPIO /v ImagePath /f /t REG_EXPAND_SZ /d \SystemRoot\System32\drivers\iaLPSSi_GPIO.sys
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\ibtusb /v ImagePath /f /t REG_EXPAND_SZ /d /
-reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\ICCWDT /v ImagePath /f /t REG_EXPAND_SZ /d \SystemRoot\System32\drivers\iaLPSSi_ICCWDT.sys
+::reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\ICCWDT /v ImagePath /f /t REG_EXPAND_SZ /d \SystemRoot\System32\drivers\iaLPSSi_ICCWDT.sys
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\intaud_WaveExtensible /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\IntcDAud /v ImagePath /f /t REG_EXPAND_SZ /d /
-reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\iwdbus /v ImagePath /f /t REG_EXPAND_SZ /d \SystemRoot\System32\drivers\iwdbus.sys
+::reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\iwdbus /v ImagePath /f /t REG_EXPAND_SZ /d \SystemRoot\System32\drivers\iwdbus.sys
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\MEIx64 /v ImagePath /f /t REG_EXPAND_SZ /d /
-reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Netwtw06 /v ImagePath /f /t REG_EXPAND_SZ /d \SystemRoot\System32\drivers\Netwtw06.sys
-reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\XtuAcpiDriver /v ImagePath /f /t REG_EXPAND_SZ /d \SystemRoot\System32\drivers\XtuAcpiDriver.sys
+::reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Netwtw06 /v ImagePath /f /t REG_EXPAND_SZ /d \SystemRoot\System32\drivers\Netwtw06.sys
+::reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\XtuAcpiDriver /v ImagePath /f /t REG_EXPAND_SZ /d \SystemRoot\System32\drivers\XtuAcpiDriver.sys
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\XTUComponent /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\bcbtums /v ImagePath /f /t REG_EXPAND_SZ /d /
 reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\IntelPMT /v ImagePath /f /t REG_EXPAND_SZ /d /
@@ -595,9 +608,18 @@ netsh advfirewall firewall add rule name="yongbin ipv6 out" protocol=41 dir=out 
 
 if "%yongbin%"=="wye" (
   netsh advfirewall firewall delete rule name="yongbin dhcp out"
-  netsh advfirewall firewall add rule name="yongbin udp out" protocol=UDP dir=out localport=67,68 action=block
+  netsh advfirewall firewall add rule name="yongbin dhcp out" protocol=UDP dir=out localport=67,68 action=block
   netsh advfirewall firewall delete rule name="yongbin dhcp in"
-  netsh advfirewall firewall add rule name="yongbin udp in" protocol=UDP dir=in localport=67,68 action=block
+  netsh advfirewall firewall add rule name="yongbin dhcp in" protocol=UDP dir=in localport=67,68 action=block
+  netsh advfirewall firewall delete rule name="yongbin icmp4 out"
+  netsh advfirewall firewall add rule name="yongbin icmp4 out" protocol=ICMPv4 dir=out action=block
+  netsh advfirewall firewall delete rule name="yongbin icmp4 in"
+  netsh advfirewall firewall add rule name="yongbin icmp4 in" protocol=ICMPv4 dir=in action=block
+  netsh advfirewall firewall delete rule name="yongbin icmp6 out"
+  netsh advfirewall firewall add rule name="yongbin icmp6 out" protocol=ICMPv6 dir=out action=block
+  netsh advfirewall firewall delete rule name="yongbin icmp6 in"
+  netsh advfirewall firewall add rule name="yongbin icmp6 in" protocol=ICMPv6 dir=in action=block
+  call :disable_service Dhcp
 )
 
 netsh advfirewall firewall show rule profile=any
