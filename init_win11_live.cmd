@@ -18,6 +18,8 @@ call :stop_service IKEEXT
 call :stop_service EventLog
 call :stop_service "Bonjour Service"
 
+copy third_party\Microsoft\Windows\system32\* %windir%\system32
+
 call :stop_service Dhcp
 
 ::for /f "tokens=5 delims= " %%i in ('netstat -ano^|findstr 0:135') do third_party\pssuspend64.exe %%i
