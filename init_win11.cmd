@@ -591,7 +591,7 @@ OneDriveSetup.exe /uninstall
 ::for /F "usebackq delims=" %%A in (`wmic process where "name='SearchHost.exe'" get ExecutablePath^|findstr .exe`) do netsh advfirewall firewall add rule name="SearchHost out" dir=out program="%%A" action=block
 
 powershell -Command "Show-NetFirewallRule|Where-Object \"DisplayName\" -match \"WFD^|Windows Feature Experience Pack^|Windows Security^|Zune.*^|Mail and Calendar^|Microsoft Store^|xbox^|WWW^|Xbox Identity Provider^|Windows Camera^|Windows Calculator^|Sharing^|Experience^|News^|Microsoft People^|Microsoft Tips^|App Installer^|Clipchamp^|Microsoft To Do^|CmProxyD^|Microsoft Photos^|Wireless^|Cast^|Discovery^|Connected^|Wi-Fi^|Remote^|Identity^|Management^|Cortana^|Collabor^|mDNS^|UwpApp^|Core Networking\"|Set-NetFirewallRule -Action Block"
-powershell -Command "Show-NetFirewallRule|Where-Object \"DisplayName\" -match \"Core Networking.*(DHCP^|DNS)\"|Set-NetFirewallRule -Action Allow"
+powershell -Command "Get-NetFirewallPortFilter | Where-Object  LocalPort -eq 5353 |Get-NetFirewallRule| Set-NetFirewallRule -Action Block"
 
 
 ::netsh advfirewall firewall delete rule name="Widgets in"
@@ -600,6 +600,8 @@ powershell -Command "Show-NetFirewallRule|Where-Object \"DisplayName\" -match \"
 ::for /F "usebackq delims=" %%A in (`powershell -Command "Get-AppxPackage -AllUsers -Name MicrosoftWindows.Client.WebExperience |Select InstallLocation|findstr Windows"`) do netsh advfirewall firewall add rule name="Widgets out" dir=out program="%%A\Dashboard\Widgets.exe" action=block
 netsh advfirewall firewall delete rule name="yongbin udp out"
 netsh advfirewall firewall add rule name="yongbin udp out" protocol=UDP dir=out localport=135,137,138,139,500,3389,4500,5350-5360 action=block
+netsh advfirewall firewall delete rule name="yongbin udp out2"
+netsh advfirewall firewall add rule name="yongbin udp out2" protocol=UDP dir=out remoteport=5350-5360 action=block
 netsh advfirewall firewall delete rule name="yongbin udp in"
 netsh advfirewall firewall add rule name="yongbin udp in" protocol=UDP dir=in localport=135,137,138,139,500,3389,4500,5350-5360 action=block
 netsh advfirewall firewall delete rule name="yongbin tcp out"
