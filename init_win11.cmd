@@ -85,8 +85,15 @@ netsh int ipv6 6to4 set state disabled
 netsh int ipv6 isatap set state disabled
 netsh int teredo set state disabled
 
-pnputil -i -a third_party\Drivers\Apple\netaapl64.inf
-pnputil -i -a third_party\Drivers\Apple\usbaapl64.inf
+::https://catalog.s.download.windowsupdate.com/c/msdownload/update/driver/drvs/2017/11/netaapl_7503681835e08ce761c52858949731761e1fa5a1.cab
+::https://catalog.s.download.windowsupdate.com/d/msdownload/update/driver/drvs/2020/11/01d96dfd-2f6f-46f7-8bc3-fd82088996d2_a31ff7000e504855b3fa124bf27b3fe5bc4d0893.cab
+
+mkdir %temp%\wye
+expand third_party\Drivers\Microsoft\Apple_Tether_USB_Drivers_netaapl_7503681835e08ce761c52858949731761e1fa5a1.cab -F:* %temp%\wye
+expand third_party\Drivers\Microsoft\Apple_USB_Drivers_01d96dfd-2f6f-46f7-8bc3-fd82088996d2_a31ff7000e504855b3fa124bf27b3fe5bc4d0893.cab -F:* %temp%\wye
+
+pnputil -i -a %temp%\wye\netaapl64.inf
+pnputil -i -a %temp%\wye\AppleUsb.inf
 ::pnputil -i -a third_party\Drivers\Intel\Thunderbolt\TbtHostController.inf
 
 ::dtsapo4acerextensionpkg.inf
