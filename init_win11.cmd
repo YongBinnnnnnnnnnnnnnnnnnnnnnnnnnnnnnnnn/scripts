@@ -23,12 +23,12 @@ wmic product where name="Bonjour" call uninstall
 wmic product where name="Apple Software Update" call uninstall
 :: notworking
 wmic product where name=null call uninstall
-::ren C:\Windows\System32\opencl.dll opencl.dll.ybkup
-::ren C:\Windows\SysWOW64\opencl.dll opencl.dll.ybkup
-::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\System32\opencl.dll opencl.dll.ybkup||ren C:\Windows\System32\opencl.dll opencl.dll.ybkup2"
-::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\SysWOW64\opencl.dll opencl.dll.ybkup||ren C:\Windows\SysWOW64\opencl.dll opencl.dll.ybkup2"
-::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\System32\opengl32.dll opengl32.dll.ybkup||ren C:\Windows\System32\opengl32.dll opengl32.dll.ybkup2"
-::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c "ren C:\Windows\SysWOW64\opengl32.dll opengl32.dll.ybkup||ren C:\Windows\SysWOW64\opengl32.dll opengl32.dll.ybkup2"
+::ren %windir%\System32\opencl.dll opencl.dll.ybkup
+::ren %windir%\SysWOW64\opencl.dll opencl.dll.ybkup
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c "ren %windir%\System32\opencl.dll opencl.dll.ybkup||ren %windir%\System32\opencl.dll opencl.dll.ybkup2"
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c "ren %windir%\SysWOW64\opencl.dll opencl.dll.ybkup||ren %windir%\SysWOW64\opencl.dll opencl.dll.ybkup2"
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c "ren %windir%\System32\opengl32.dll opengl32.dll.ybkup||ren %windir%\System32\opengl32.dll opengl32.dll.ybkup2"
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c "ren %windir%\SysWOW64\opengl32.dll opengl32.dll.ybkup||ren %windir%\SysWOW64\opengl32.dll opengl32.dll.ybkup2"
 
 sc config IntelAudioService start=disabled
 sc config cplspcon start=disabled
@@ -260,6 +260,7 @@ sc config acpipagr start=disabled
 sc config acpitime start=disabled
 call :disable_service wmiacpi
 call :disable_service UcmUcsiAcpiClient
+call :disable_service BTHMODEM
 
 sc config intelpmt start=disabled
 sc config intelpep start=disabled
@@ -267,21 +268,22 @@ sc config intelpep start=disabled
 sc config cdrom start=demand
 sc config usbser start=demand
 
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\sc.exe /wait /account=ti /args=config wlms start=disabled
-n third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\taskkill.exe /wait /account=ti /args=/f /im msmpeng.exe
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\sc.exe /wait /account=ti /args=config SecurityHealthService start=disabled
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\sc.exe /wait /account=ti /args=config wlms start=disabled
+n third_party\RunX\RunXcmd.exe /exec=%windir%\System32\taskkill.exe /wait /account=ti /args=/f /im msmpeng.exe
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\sc.exe /wait /account=ti /args=config SecurityHealthService start=disabled
 
 sc config Audiosrv start=auto
-::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\sc.exe /wait /account=ti /args=config WinDefend start=disabled
-::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\reg.exe /wait /account=ti /args=add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WinDefend /v ImagePath /f /t REG_EXPAND_SZ /d ""
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\sc.exe /wait /account=ti /args=config WinDefend start=disabled
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\reg.exe /wait /account=ti /args=add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WinDefend /v ImagePath /f /t REG_EXPAND_SZ /d ""
 reg copy HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WinDefend HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WinDefend_ybkup
 call :disable_service WinDefend_ybkup
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\sc.exe /wait /account=ti /args=delete WinDefend
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\sc.exe /wait /account=ti /args=delete WinDefend
 
 ::sc config start=disabled
 powershell -Command "Get-ScheduledTask|Where-Object \"TaskName\" -match \"OneDrive*^|microsoftedge*\"|Disable-ScheduledTask"
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe /wait /account=ti /args=-Command "Get-ScheduledTask|Where-Object \"TaskPath\" -match \"\\Microsoft.*(AppList^|ApplicationData^|Certificate^|Cloud^|Device Information^|DeviceDirect^|Diag^|DiskClean^|DUSM^|\\EDP\\^|Experience^|Feedback^|Flighting^|Footprint^|InstallService^|License^|\\Location\\^|NetTrace^|ongbin^|Provision^|Push^|Remote^|Sync^|SoftwareProtection^|SpacePort^|StateRepository^|Update^|WaaSMedic^|Work Folder^|XblGame^|Config^|Policy)\"|Disable-ScheduledTask"
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe /wait /account=ti /args=-Command "Get-ScheduledTask|Where-Object \"TaskName\" -match \"Defender^|ShellAppRuntime^|SystemSound^|CacheTask^|BfeOnServ^|Family^|Discovery^|Intelligent^|Proxy^|Theme^|Report^|VerifiedPublisherCertStoreCheck^|WiFi^|WIM-Hash^|Yong^|NGEN^|Regist^|Sync^|Update^|Notif\"|Disable-ScheduledTask"
+powershell -Command "Get-ScheduledTask|Where-Object \"TaskName\" -match \"{B08EE1C0-1212-4416-8BD9-4A3B767DDFAD}\"|Disable-ScheduledTask"
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\WindowsPowerShell\v1.0\powershell.exe /wait /account=ti /args=-Command "Get-ScheduledTask|Where-Object \"TaskPath\" -match \"\\Microsoft.*(AppList^|ApplicationData^|Certificate^|Cloud^|Device Information^|DeviceDirect^|Diag^|DiskClean^|DUSM^|\\EDP\\^|Experience^|Feedback^|Flighting^|Footprint^|InstallService^|License^|\\Location\\^|NetTrace^|ongbin^|Provision^|Push^|Remote^|Sync^|SoftwareProtection^|SpacePort^|StateRepository^|Update^|WaaSMedic^|Work Folder^|XblGame^|Config^|Policy)\"|Disable-ScheduledTask"
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\WindowsPowerShell\v1.0\powershell.exe /wait /account=ti /args=-Command "Get-ScheduledTask|Where-Object \"TaskName\" -match \"Defender^|ShellAppRuntime^|SystemSound^|CacheTask^|BfeOnServ^|Family^|Discovery^|Intelligent^|Proxy^|Theme^|Report^|VerifiedPublisherCertStoreCheck^|WiFi^|WIM-Hash^|Yong^|NGEN^|Regist^|Sync^|Update^|Notif\"|Disable-ScheduledTask"
 ::del %windir%\System32\Tasks\Microsoft\Windows\PushToInstall\Registration
 ::del %windir%\System32\Tasks\Microsoft\Windows\Security\Pwdless\IntelligentPwdlessTask
 ::del %windir%\System32\Tasks\Microsoft\Windows\Shell\*Family*
@@ -300,48 +302,49 @@ powercfg /setDCvalueIndex scheme_current sub_buttons SButtonAction 0
 ::pnputil /delete-driver oem9.inf /force /uninstall
 ::dism /online /get-drivers /format:table
 
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\CIRCoInst.dll CIRCoInst.dll.ybkup
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\CIRCoInst.dll CIRCoInst.dll.ybkup
 
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\cbdhsvc.dll cbdhsvc.dll.ybkup
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\cdpsvc.dll cdpsvc.dll.ybkup
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\cdpusersvc.dll cdpusersvc.dll.ybkup
-::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\cryptsvc.dll cryptsvc.dll.ybkup
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\diagtrack.dll diagtrack.dll.ybkup
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\dusmsvc.dll dusmsvcc.dll.ybkup
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\windowsudkservices.shellcommon.dll windowsudkservices.shellcommon.dll.ybkup
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\wlidsvc.dll wlidsvc.dll.ybkup
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\InstallService.dll InstallService.dll.ybkup
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\cbdhsvc.dll cbdhsvc.dll.ybkup
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\cdpsvc.dll cdpsvc.dll.ybkup
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\cdpusersvc.dll cdpusersvc.dll.ybkup
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\cryptsvc.dll cryptsvc.dll.ybkup
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\diagtrack.dll diagtrack.dll.ybkup
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\dusmsvc.dll dusmsvcc.dll.ybkup
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\windowsudkservices.shellcommon.dll windowsudkservices.shellcommon.dll.ybkup
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\wlidsvc.dll wlidsvc.dll.ybkup
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\InstallService.dll InstallService.dll.ybkup
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\drivers\acpiex.sys acpiex.sys.ybkup
 
-ren C:\Windows\System32\diagtrack.dll diagtrack.dll.ybkup
+ren %windir%\System32\diagtrack.dll diagtrack.dll.ybkup
 
-::ren C:\Windows\System32\btwdi.dll btwdi.dll.ybkup
-::ren C:\Windows\System32\BtwRSupportService.exe BtwRSupportService.exe.ybkup
-::ren C:\Windows\System32\drivers\bcbtums.sys bcbtums.sys.ybkup
-::ren C:\Windows\System32\drivers\bthport.sys bthport.sys.ybkup
-::ren C:\Windows\System32\drivers\bthusb.sys bthusb.sys.ybkup
-::ren C:\Windows\System32\drivers\btwampfl.sys btwampfl.sys.ybkup
-::ren C:\Windows\System32\drivers\btha2dp.sys btha2dp.sys.ybkup
-::ren C:\Windows\System32\drivers\bthenum.sys bthenum.sys.ybkup
-::ren C:\Windows\System32\drivers\bthhfenum.sys bthhfenum.sys.ybkup
-::ren C:\Windows\System32\drivers\bthleenum.sys bthleenum.sys.ybkup
-::ren C:\Windows\System32\drivers\bthmini.sys bthmini.sys.ybkup
-::ren C:\Windows\System32\drivers\bthmodem.sys bthmodem.sys.ybkup
-::ren C:\Windows\System32\drivers\bthpan.sys bthpan.sys.ybkup
-::ren C:\Windows\System32\drivers\igdkmd64.sys igdkmd64.sys.ybkup
-::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\uxtheme.dll uxtheme.dll.ybkup
+::ren %windir%\System32\btwdi.dll btwdi.dll.ybkup
+::ren %windir%\System32\BtwRSupportService.exe BtwRSupportService.exe.ybkup
+::ren %windir%\System32\drivers\bcbtums.sys bcbtums.sys.ybkup
+::ren %windir%\System32\drivers\bthport.sys bthport.sys.ybkup
+::ren %windir%\System32\drivers\bthusb.sys bthusb.sys.ybkup
+::ren %windir%\System32\drivers\btwampfl.sys btwampfl.sys.ybkup
+::ren %windir%\System32\drivers\btha2dp.sys btha2dp.sys.ybkup
+::ren %windir%\System32\drivers\bthenum.sys bthenum.sys.ybkup
+::ren %windir%\System32\drivers\bthhfenum.sys bthhfenum.sys.ybkup
+::ren %windir%\System32\drivers\bthleenum.sys bthleenum.sys.ybkup
+::ren %windir%\System32\drivers\bthmini.sys bthmini.sys.ybkup
+::ren %windir%\System32\drivers\bthmodem.sys bthmodem.sys.ybkup
+::ren %windir%\System32\drivers\bthpan.sys bthpan.sys.ybkup
+::ren %windir%\System32\drivers\igdkmd64.sys igdkmd64.sys.ybkup
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\uxtheme.dll uxtheme.dll.ybkup
 
 ren %windir%\InputMethod InputMethod.ybkup
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\smartscreen.dll smartscreen.dll.ybkup
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren C:\Windows\System32\smartscreen.exe smartscreen.exe.ybkup
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\smartscreen.dll smartscreen.dll.ybkup
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\smartscreen.exe smartscreen.exe.ybkup
 
 powershell -Command "Get-CimInstance Win32_SystemDriver -Filter \"name='E1G60'\"|Invoke-CimMethod -MethodName Delete"
 powershell -Command "Get-CimInstance Win32_SystemDriver|Where-Object \"DisplayName\" -match \"Bluetooth^|Nahimic\"|Invoke-CimMethod -MethodName Delete"
 
 sc stop dosvc
 
-third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\reg.exe /wait /account=ti /args=add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender\Windows Defender Exploit Guard\Network Protection" /v EnableNetworkProtection /f /t REG_DWORD /d 1
-::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\reg.exe /wait /account=ti /args=add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender" /v DisableAntiVirus /f /t REG_DWORD /d 1
-::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\reg.exe /wait /account=ti /args=add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender" /v DisableAntiVirus /f /t REG_DWORD /d 1
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\reg.exe /wait /account=ti /args=add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender\Windows Defender Exploit Guard\Network Protection" /v EnableNetworkProtection /f /t REG_DWORD /d 1
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\reg.exe /wait /account=ti /args=add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender" /v DisableAntiVirus /f /t REG_DWORD /d 1
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\reg.exe /wait /account=ti /args=add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Defender" /v DisableAntiVirus /f /t REG_DWORD /d 1
 
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Filter /f /t REG_DWORD /d 0
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v Hidden /f /t REG_DWORD /d 1
@@ -484,7 +487,7 @@ reg delete HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\e1dexpress /f
 reg delete "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server\Wds\rdpwd" /f
 
 ::Even ti cannot write to this ass, will disable execution permission of this shit
-::third_party\RunX\RunXcmd.exe /exec=c:\windows\System32\reg.exe /wait /account=ti /args=add HKEY_LOCAL_MACHINE\SYSTEM\WaaS\Upfc /v NextHealthCheckTime /f /t REG_SZ /d "9999-01-01T00:00:00Z"
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\reg.exe /wait /account=ti /args=add HKEY_LOCAL_MACHINE\SYSTEM\WaaS\Upfc /v NextHealthCheckTime /f /t REG_SZ /d "9999-01-01T00:00:00Z"
 
 ::Completely disabled UWP of Windows 11, explorer has to run in this way
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v Shell /f /t REG_SZ /d "explorer.exe \"shell:::{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}\" -Embedding"
@@ -492,7 +495,7 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogo
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v ShellInfrastructure /f /t REG_SZ /d ""
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v SiHostRestartCountLimit /f /t REG_DWORD /d 1
 reg copy "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers" "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers_ybkup" /s /f
-third_party\RunX\RunXcmd.exe /exec=c:\windows\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers" /f
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers" /f
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{60b78e88-ead8-445c-9cfd-0b87f74ea6cd}" /f /t REG_SZ /d "PasswordProvider"
 reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\Credential Providers\{F8A1793B-7873-4046-B2A7-1F318747F427}" /f /t REG_SZ /d "FIDO Credential Provider"
 
@@ -504,7 +507,7 @@ reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shellex\PropertySheetHandlers\
 :: required for reading exe signatures {7444C719-39BF-11D1-8CD9-00C04FC29D45}
 ::reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shellex\PropertySheetHandlers\CryptoSignMenu" /F
 ::FCI Properties
-third_party\RunX\RunXcmd.exe /exec=c:\windows\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shellex\PropertySheetHandlers\FCI Properties" /F
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\*\shellex\PropertySheetHandlers\FCI Properties" /F
 
 ::ModernSharing
 reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\AllFilesystemObjects\shellex\ContextMenuHandlers\ModernSharing" /f
@@ -542,13 +545,13 @@ reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explore
 
 ::Device Stage Shell Extension
 ::reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ShellServiceObjects\{566296fe-e0e8-475f-ba9c-a31ad31620b1}" /f
-third_party\RunX\RunXcmd.exe /exec=c:\windows\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ShellServiceObjects\{566296fe-e0e8-475f-ba9c-a31ad31620b1}" /f
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ShellServiceObjects\{566296fe-e0e8-475f-ba9c-a31ad31620b1}" /f
 ::Windows To Go Shell Service Object
 ::reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ShellServiceObjects\{4DC9C264-730E-4CF6-8374-70F079E4F82B}" /f
-third_party\RunX\RunXcmd.exe /exec=c:\windows\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ShellServiceObjects\{4DC9C264-730E-4CF6-8374-70F079E4F82B}" /f
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ShellServiceObjects\{4DC9C264-730E-4CF6-8374-70F079E4F82B}" /f
 ::Windows System Reset SSO
 ::reg delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ShellServiceObjects\{872f8dc8-dde4-43bd-ac7a-e3d9fe86ceac}" /f
-third_party\RunX\RunXcmd.exe /exec=c:\windows\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ShellServiceObjects\{872f8dc8-dde4-43bd-ac7a-e3d9fe86ceac}" /f
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\ShellServiceObjects\{872f8dc8-dde4-43bd-ac7a-e3d9fe86ceac}" /f
 
 
 reg delete "HKEY_CURRENT_USER\Software\Classes\*\shellex\ContextMenuHandlers\ FileSyncEx" /f
@@ -633,7 +636,7 @@ takeown /f %windir%\system32\sethc.exe /a
 icacls %windir%\system32\sethc.exe /C /deny Everyone:RX
 takeown /f %windir%\system32\upfc.exe /a
 icacls %windir%\system32\upfc.exe /C /deny Everyone:RX
-::third_party\RunX\RunXcmd.exe /exec=C:\Windows\System32\cmd.exe /wait /account=ti /args=/c ren "%ProgramFiles%\Windows Defender\MsMpEng.exe" MsMpEng.exe.ybkup
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren "%ProgramFiles%\Windows Defender\MsMpEng.exe" MsMpEng.exe.ybkup
 
 ::ren %windir%\system32\utilman.exe utilman.exe.bak
 ::copy %windir%\system32\winver.exe %windir%\system32\utilman.exe
@@ -650,7 +653,7 @@ icacls %windir%\system32\upfc.exe /C /deny Everyone:RX
 ::wmic useraccount WHERE Name=%x% set PasswordExpires=false
 gpupdate /force
 reg copy "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\GPExtensions" "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\GPExtensions_ybkup" /s /f
-third_party\RunX\RunXcmd.exe /exec=c:\windows\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\GPExtensions" /f
+third_party\RunX\RunXcmd.exe /exec=%windir%\System32\reg.exe /wait /account=ti /args=delete "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\GPExtensions" /f
 
 
 systempropertiesperformance
@@ -665,7 +668,7 @@ if not errorlevel 1 (
     sc config %~1 start=disabled || (
         reg add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%~1 /v Start /f /t REG_DWORD /d 4 
     ) || (
-        third_party\RunX\RunXcmd.exe /exec=c:\windows\System32\reg.exe /wait /account=ti /args=add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%~1 /v Start /f /t REG_DWORD /d 4
+        third_party\RunX\RunXcmd.exe /exec=%windir%\System32\reg.exe /wait /account=ti /args=add HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\%~1 /v Start /f /t REG_DWORD /d 4
     )
   )
 )
