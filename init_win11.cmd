@@ -52,6 +52,8 @@ pnputil /disable-device /deviceid "PCI\VEN_8086&DEV_9A1D"
 pnputil /disable-device /deviceid "PCI\VEN_1022&DEV_790B"
 
 ::pnputil /disable-device "ACPI\USBC000\0"
+
+powershell -Command "Get-ScheduledTask|Where-Object \"TaskName\" -match \"^AMD*\"|Disable-ScheduledTask"
 pause
 
 powershell -Command "Get-CimInstance Win32_SystemDriver|Where-Object \"DisplayName\" -match \"Nahimic\"|Invoke-CimMethod -MethodName Delete"
