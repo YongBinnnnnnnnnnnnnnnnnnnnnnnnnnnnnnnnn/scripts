@@ -599,6 +599,7 @@ OneDriveSetup.exe /uninstall
 
 powershell -Command "Show-NetFirewallRule|Where-Object \"DisplayName\" -match \"WFD^|Windows Feature Experience Pack^|Windows Security^|Zune.*^|Mail and Calendar^|Microsoft Store^|xbox^|WWW^|Xbox Identity Provider^|Windows Camera^|Windows Calculator^|Sharing^|Experience^|News^|Microsoft People^|Microsoft Tips^|App Installer^|Clipchamp^|Microsoft To Do^|CmProxyD^|Microsoft Photos^|Wireless^|Cast^|Discovery^|Connected^|Wi-Fi^|Remote^|Identity^|Management^|Cortana^|Collabor^|mDNS^|UwpApp^|Core Networking\"|Set-NetFirewallRule -Action Block"
 powershell -Command "Get-NetFirewallPortFilter | Where-Object  LocalPort -eq 5353 |Get-NetFirewallRule| Set-NetFirewallRule -Action Block"
+powershell -Command "Get-NetFirewallPortFilter | Where-Object  RemotePort -eq 5353 |Get-NetFirewallRule| Set-NetFirewallRule -Action Block"
 
 
 ::netsh advfirewall firewall delete rule name="Widgets in"
