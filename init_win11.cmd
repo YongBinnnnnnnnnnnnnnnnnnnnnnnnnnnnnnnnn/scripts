@@ -90,10 +90,10 @@ netsh int teredo set state disabled
 
 mkdir %temp%\wye
 expand third_party\Drivers\Microsoft\Apple_Tether_USB_Drivers_netaapl_7503681835e08ce761c52858949731761e1fa5a1.cab -F:* %temp%\wye
-expand third_party\Drivers\Microsoft\Apple_USB_Drivers_01d96dfd-2f6f-46f7-8bc3-fd82088996d2_a31ff7000e504855b3fa124bf27b3fe5bc4d0893.cab -F:* %temp%\wye
+::expand third_party\Drivers\Microsoft\Apple_USB_Drivers_01d96dfd-2f6f-46f7-8bc3-fd82088996d2_a31ff7000e504855b3fa124bf27b3fe5bc4d0893.cab -F:* %temp%\wye
 
 pnputil -i -a %temp%\wye\netaapl64.inf
-pnputil -i -a %temp%\wye\AppleUsb.inf
+pnputil -i -a third_party\Drivers\Apple\usbaapl64.inf
 ::pnputil -i -a third_party\Drivers\Intel\Thunderbolt\TbtHostController.inf
 
 ::dtsapo4acerextensionpkg.inf
@@ -267,6 +267,7 @@ sc config mssmbios start=disabled
 ::sc config acpi start=disabled
 sc config acpipagr start=disabled
 sc config acpitime start=disabled
+call :disable_service swenum
 call :disable_service wmiacpi
 call :disable_service UcmUcsiAcpiClient
 call :disable_service BTHMODEM
@@ -322,7 +323,7 @@ third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /
 third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\windowsudkservices.shellcommon.dll windowsudkservices.shellcommon.dll.ybkup
 third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\wlidsvc.dll wlidsvc.dll.ybkup
 third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\InstallService.dll InstallService.dll.ybkup
-third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\drivers\acpiex.sys acpiex.sys.ybkup
+::third_party\RunX\RunXcmd.exe /exec=%windir%\System32\cmd.exe /wait /account=ti /args=/c ren %windir%\System32\drivers\acpiex.sys acpiex.sys.ybkup
 
 ren %windir%\System32\diagtrack.dll diagtrack.dll.ybkup
 
@@ -635,6 +636,7 @@ if "%yongbin%"=="wye" (
   netsh advfirewall firewall delete rule name="yongbin icmp6 in"
   netsh advfirewall firewall add rule name="yongbin icmp6 in" protocol=ICMPv6 dir=in action=block
   call :disable_service Dhcp
+  call :disable_service msisadrv
 )
 
 netsh advfirewall firewall show rule profile=any
