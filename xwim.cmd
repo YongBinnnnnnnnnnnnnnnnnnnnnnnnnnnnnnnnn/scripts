@@ -16,4 +16,5 @@ copy third_party\Microsoft\WIndows\System32\* %temp%\wyem\WIndows\System32\
 
 dism /image:%temp%\wyem /add-driver /driver:%temp%\wye\netaapl64.inf
 dism /image:%temp%\wyem /add-driver /driver:third_party\Drivers\Apple\usbaapl64.inf
+dism /image:%temp%\wyem /add-driver /driver:third_party\Drivers\Microsoft\usbncm.inf_amd64_4b17399b45eb003f\usbncm.inf
 dism /unmount-image /mountdir:%temp%\wyem /commit
